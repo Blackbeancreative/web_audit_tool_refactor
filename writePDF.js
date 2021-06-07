@@ -1,7 +1,5 @@
-const ejs = require("ejs");
-const pdf = require("html-pdf");
-//const path = require("path");
-const fs = require("fs");
+const ejs = require("ejs"),
+    pdf = require("html-pdf")
 
 class WritePDF {
     static async generateTemplate(template, data, options) {

@@ -1,6 +1,6 @@
-const lighthouse = require('lighthouse')
-const chromium = require('chrome-aws-lambda')
-const pa11y = require('pa11y')
+const lighthouse = require('lighthouse'),
+    chromium = require('chrome-aws-lambda'),
+    pa11y = require('pa11y')
 
 class Audit {
     static async auditor(url) {
@@ -10,24 +10,24 @@ class Audit {
                 executablePath: await chromium.executablePath,
                 headless: chromium.headless,
                 ignoreHTTPSErrors: true
+            }),
+            options = {
+                logLevel: 'info',
+                output: 'json',
+                onlyCategories: ['performance', 'accessibility', 'seo'],
+                skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
+                port: (new URL(chrome.wsEndpoint())).port 
+            },
+            lightHouseResult = await lighthouse(url, options),
+            pa11yResult = await pa11y(url).then((results) => {
+                return results
             })
-        const options = {
-            logLevel: 'info',
-            output: 'json',
-            onlyCategories: ['performance', 'accessibility', 'seo'],
-            skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
-            port: (new URL(chrome.wsEndpoint())).port 
-        }
-        const lightHouseResult = await lighthouse(url, options)
-        const pa11yResult = await pa11y(url).then((results) => {
-            return results
-        })
         if(chrome) {
             await chrome.close()
         }
-        const lightHouseObj = JSON.parse(lightHouseResult.report)
-        const LHR = lightHouseObj['audits']['diagnostics']['details']['items'][0]
-        const data = {
+        const lightHouseObj = JSON.parse(lightHouseResult.report),
+            LHR = lightHouseObj['audits']['diagnostics']['details']['items'][0],
+            data = {
                 lighthouse: {
                     requests: LHR['numRequests'],
                     over_100_ms: LHR['numTasksOver100ms'],
