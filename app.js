@@ -19,14 +19,17 @@ app.get('/', function(req,res){
   res.render('index')
 })
 app.post('/process_report', async function (req, res) {
+  console.log('starting processing report');
   res.render('thanks')
   let report = await Audit.auditor(req.body.url) //generate audit. includes Lighthouse and Pa11y
+  console.log(report);
   const browser = await pupper.launch() //begin generating PDF with puppeteer.
   const webPage = await browser.newPage()
   const pugPage = pug.compileFile('./views/pdf/layout.pug')
   const the_page = pugPage(report)
   const id = Math.random().toString(16).substr(2,5) //generate random identifier for temp HTML file
   fs.writeFile(`./${id}_report.html`, the_page, (callback) => {console.log(callback)})
+  console.log('calling synchronous create file');
   await webPage.goto(`file:${path.join(__dirname, `${id}_report.html`)}`, {waitUntil: 'networkidle0'}) //open local file in browser
   const thePDF = await webPage.pdf({
       preferCSSPageSize: true,
@@ -45,6 +48,8 @@ app.post('/process_report', async function (req, res) {
     }
     const buf = await finalPDF.save()
     const the_bytes = Buffer.from(buf)
+
+    console.log('sending email');
   
     Mail.sendMail(req.body.email, req.body.firstname, req.body.url, the_bytes.toString('base64'))
        try {

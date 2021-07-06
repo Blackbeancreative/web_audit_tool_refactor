@@ -50,6 +50,14 @@ function normalizePort(val) {
 }
 
 /**
+ * Helper function for debugging / logging
+ */
+function sendServerLog(message) {
+  debug(message);
+  console.log(message);
+}
+
+/**
  * Event listener for HTTP server "error" event.
  */
 
@@ -86,5 +94,5 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  sendServerLog('Listening on ' + bind);
 }
