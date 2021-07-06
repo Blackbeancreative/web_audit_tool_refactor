@@ -1,0 +1,49 @@
+doctype html
+html(lang="en")
+    head
+        title= "Automated Website Audit | BlackBean Marketing"
+        link(
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@1,700&family=Open+Sans:ital,wght@0,400;0,700;1,700&display=swap"
+            )
+        style
+            include ./pdf.css
+        script(
+            src="https://kit.fontawesome.com/427aec44f4.js"
+            crossorigin="anonymous"
+        )
+        - let keys = Object.keys(lighthouse)
+        - let vals = Object.values(lighthouse) 
+        - let pageOne = [0, 1]
+        - let pageTwo = [2, 3, 4]
+    body.letter
+        .sheet
+            .spacer
+                img(src="https://blackbeanmarketing.com/static/img/blkbn.jpeg" width="100%" height="100%")
+            h1 HI! HERE IS YOUR AUDIT:
+            h2 #{website.url} 
+            p This document combines Google's Lighthouse reporting data with accessibility/ADA compliance data from the open-source Pa11y tool to provide a snapshot of your website's performance and accessibility issues.
+            each int in pageOne 
+                include ./stats.pug
+        .sheet
+            .spacer
+                img(src="https://blackbeanmarketing.com/static/img/blkbn.jpeg" width="100%" height="100%") 
+            each int in pageTwo 
+                include ./stats.pug
+        .sheet 
+            .spacer
+                img(src="https://blackbeanmarketing.com/static/img/blkbn.jpeg" width="100%" height="100%")
+            include ./a11y-intro.pug
+        - let count = ada.issues.length;
+        - let value = [];
+        - for (let z= 0; z < count + 1; z++) {
+            - if (z && (z % 3 == 0)) {
+                - value.push(z)
+            - }
+        - }
+    - for (let i = 0; i < value.length; i++) {
+        .sheet 
+            - for(let p = (value[i] - 3); p < value[i]; p++) {
+                include ./ada-box.pug
+            - }
+    - }

@@ -1,0 +1,18 @@
+.wrapper
+    - let code = ada.issues[i].code.slice(-20).match(/([A-Z]{1}[0-9]{0,2})/)
+    a(href=`https://www.w3.org/TR/WCAG20-TECHS/${code[0]}.html`)
+        .left-box 
+            strong= ada.issues[i].message
+            br
+            br 
+            em Click here to learn more about this issue.
+    .right-box 
+        strong Error code: 
+        p= ada.issues[i].code
+        p Error context:
+        - let context = ada.issues[i].context
+        if context.length >= 130
+            - console.log(context.length)
+            code #{context.substring(0, 130)}...
+        else
+            code= context

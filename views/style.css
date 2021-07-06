@@ -1,0 +1,77 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Arimo', Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 1.8em;
+}
+
+h2 {
+    color: #36a7e9;
+    font-size: 1.3em;
+}
+
+h3 {
+    font-size: 1.11em;
+}
+
+a {
+    text-decoration: none;
+
+}
+
+a h2 {
+    background-color: lightgray;
+    padding: 5px;
+
+}
+
+p {
+    font-family: 'Open Sans',
+        Helvetica,
+        Arial,
+        sans-serif;
+}
+
+.description {
+    font-family: 'Open Sans', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+}
+
+@page {
+    size: letter;
+    margin: 2cm;
+}
+
+.container {
+    width: 80%;
+    margin: 25mm 25mm 25mm 25mm;
+}
+
+.top {
+    padding-top: 15mm;
+}
+
+body {
+    -webkit-print-color-adjust: exact !important;
+}
+
+#border {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border: 10mm solid #202639;
+}
+
+.pagecount {
+    position: fixed;
+    bottom: 0;
+    left: 5mm;
+    color: white;
+}

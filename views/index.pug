@@ -1,0 +1,66 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  title Website Performance Audit | BlackBean Marketing
+  meta(name='description' content='DESCRIPTION GOES HERE')
+  link(rel='icon' href='images/favicon.ico' sizes='192x192')
+  link(rel='stylesheet' href='stylesheets/base.css')
+  link(rel='stylesheet' href='stylesheets/normalize.css')
+  script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js')
+  script(src='javascripts/base.js')
+  link(rel='stylesheet' href='https://use.typekit.net/nbs8wru.css')
+  script(src='https://kit.fontawesome.com/ea6d83c55d.js' crossorigin='anonymous')
+header
+  section
+    .container
+      a.logo(href='https://blackbeanmarketing.com/' target='_blank')
+        img(src='images/logo-white.svg' alt='Blackbean Industrial Marketing')
+section#hero
+  .container
+    div
+      h1 Bad Websites Lose Money.
+      p
+        | Now more than ever, website issues impact your bottom line. Your customers have a world of options at their fingertips. If your website loads slowly, doesn&apos;t work well, or isn&apos;t accessible, they&apos;ll find one that is!
+        | Our free automated website audit will point out basic structural problems in your website that affect loading speed and accessibility.
+      button
+        a(href='#about' alt='Get Started')
+          | Get started
+          i.fas.fa-angle-right
+    div
+      img(src='images/throwing-money-to-the-wind-01.svg' alt='Blackbean Industrial Marketing')
+section#about
+  .container
+    h2 Accessibility and why it matters
+    p
+      | Accessibility features ensure your website experience is as good as it can be for everyone. When we neglect accessibility, we limit our customer base. It&apos;s easy to overlook! Our own experiences and biases
+      | can prevent us from focusing on accessibility like we should.
+    p
+      | That&apos;s why auditing these things matters. Our website audit tool scans for accessibility issues on your page and returns a PDF list of issues you can fix to improve your website experience.
+      | It&apos;s not just for your customer experience, either. Great accessibility is good for SEO! By fixing common issues on your web page, you&apos;ll become more likely to get seen in search results. And who doesn&apos;t want that?
+    button.no-background
+      a(href='#about' alt='Get Started')
+        | Download Sample Audit
+        i.fas.fa-angle-right
+section#contact
+  .container
+    h3 Get your free accessibility audit today!
+    span We&apos;ll never spam you, and there&apos;s no obligation.
+    p
+      | Have a web page you want to test? Submit this form with the URL you&apos;d like to audit and we&apos;ll deliver a report straight to your inbox.
+    p
+      | It&apos;s totally free! If you have any questions about your results or need any support, feel free to 
+      a(href='mailto:hello@blackbeanmarketing.com') contact us.
+    form(action="/process_report", method="POST")
+      input(placeholder='First Name' type='text' name='firstname')
+      input(placeholder='Last Name' type='text' name='lastname')
+      input(placeholder='Email Address' type='email' name='email')
+      input(placeholder='Website URL' type='url' name='url')
+      button(type='submit')
+        | Send
+        i.fas.fa-angle-right
+footer
+  section
+    .container
+      a.logo(target='_blank' href='https://blackbeanmarketing.com/')
+        img(src='images/logo-white.svg' alt='Blackbean Industrial Marketing')

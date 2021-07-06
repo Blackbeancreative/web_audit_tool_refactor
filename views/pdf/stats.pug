@@ -1,0 +1,79 @@
+.container
+    if keys[int] === "docsize"
+        .textbox 
+            h2(class=`${keys[int]}`) Document Size: #{vals[int].toFixed(2)} Megabytes
+        p(class=`${keys[int]}`) Document size is the total size of all resources on the web page. The smaller this number, the less bandwidth your website consumes. Small page sizes often (but not always) equal fast load times.
+    else if keys[int] === "requests"
+        .textbox 
+            h2(class=`${keys[int]}`) NUMBER OF REQUESTS: #{vals[int]}
+            p(class=`${keys[int]}`) The number of requests on your website is a major factor in determining website performance. The average number of requests for a website is about 75.
+                strong The fewer requests your website has, the faster and less prone to errors it will be.
+    else if keys[int] === "over_100_ms"
+        .textbox
+            h2(class=`${keys[int]}`) Requests over 100ms Load Time: #{vals[int]}
+        p(class=`${keys[int]}`) Requests that take longer than 100ms to complete may cause cascading performance issues. Some requests are ‘render-blocking’, meaning that they prevent other elements from displaying on your web page until they complete. 
+            strong Slow requests cause bottlenecks in the loading process and should be avoided.
+    else if keys[int] === "scripts"
+        .textbox
+            h2(class=`${keys[int]}`) Total Scripts on Page: #{vals[int]}
+        p(class=`${keys[int]}`) Scripts are documents filled with code that make your website do things. Without scripts, we would only be able to display plain text and images on web pages.
+        p Scripts allow us to build interactive menus, contact forms, and other important features. 
+            strong Too many scripts present both a performance and security issue. 
+            |Scripts can be combined and ‘minified’ to reduce download sizes and number of requests. Unnecessary scripts should be removed from web pages to reduce security risks!
+    else if keys[int] === "loadtime"
+        .textbox
+            h2(class=`${keys[int]}`) Page Load Time: #{vals[int].toFixed(2)} Seconds
+        p(class=`${keys[int]}`) Page load time is the time it takes for a web page to load from its first request until every resource is complete. Even a few seconds of delay from a slow page has significant impact on website marketing performance!
+    .slider 
+        if keys[int] === "docsize" && vals[int] * 25 >= 94.25
+            .icon(style=`left: 94.25%`) •
+        else if keys[int] === "docsize" && vals[int] <= 4
+            .icon(style=`left: ${vals[int] * 25}%`) •
+        else if keys[int] === "requests" && vals[int] >= 94
+            .icon(style=`left: 94.25%`) •
+        else if keys[int] === "requests" && vals[int] < 94
+            .icon(style=`left: ${vals[int]}%`) •
+        else if keys[int] === "over_100_ms" && vals[int] >= 5
+            .icon(style=`left: 94.25%`) •
+        else if keys[int] === "over_100_ms" && vals[int] < 5
+            .icon(style=`left: ${vals[int] * 20}%`) •
+        else if keys[int] === "scripts" && vals[int] >= 75
+            .icon(style=`left: 94.25%`) •
+        else if keys[int] === "scripts" && vals[int] < 75
+            .icon(style=`left: ${vals[int] * 1.3}%`) •
+        else if keys[int] === "loadtime" && vals[int] >= 6
+            .icon(style=`left: 94.25%`) •
+        else if keys[int] === "loadtime" && vals[int] < 6
+            .icon(style=`left:${vals[int] * 16}%`) •
+    .smilies 
+        h3 YOUR SCORE: 
+            if keys[int] === "docsize" && vals[int] >=  4
+                i(class="far fa-frown red")
+            else if keys[int] === "docsize" && vals[int] > 3 && vals[int] < 4
+                i(class="far fa-meh amber")
+            else if keys[int] === "docsize"
+                i(class="far fa-smile")
+            else if keys[int] === "requests" && vals[int] >=  75
+                i(class="far fa-frown red")
+            else if keys[int] === "requests" && vals[int] > 50 && vals[int] < 75
+                i(class="far fa-meh amber")
+            else if keys[int] === "requests"
+                i(class="far fa-smile")
+            else if keys[int] === "over_100_ms" && vals[int] >=  5
+                i(class="far fa-frown red")
+            else if keys[int] === "over_100_ms" && vals[int] > 1 && vals[int] < 5
+                i(class="far fa-meh amber")
+            else if keys[int] === "over_100_ms"
+                i(class="far fa-smile")
+            else if keys[int] === "scripts" && vals[int] >=  30
+                i(class="far fa-frown red")
+            else if keys[int] === "scripts" && vals[int] > 15 && vals[int] < 30
+                i(class="far fa-meh amber")
+            else if keys[int] === "scripts"
+                i(class="far fa-smile")
+            else if keys[int] === "loadtime" && vals[int] >=  4.5
+                i(class="far fa-frown red")
+            else if keys[int] === "loadtime" && vals[int] > 2.5 && vals[int] < 4.5
+                i(class="far fa-meh amber")
+            else if keys[int] === "loadtime"
+                i(class="far fa-smile")

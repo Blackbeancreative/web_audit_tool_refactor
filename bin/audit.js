@@ -9,7 +9,8 @@ class Audit {
                 defaultViewport: chromium.defaultViewport,
                 executablePath: await chromium.executablePath,
                 headless: chromium.headless,
-                ignoreHTTPSErrors: true
+                ignoreHTTPSErrors: true,
+		args: ['--no-sandbox']
             }),
             options = {
                 logLevel: 'info',
@@ -19,7 +20,7 @@ class Audit {
                 port: (new URL(chrome.wsEndpoint())).port 
             },
             lightHouseResult = await lighthouse(url, options),
-            pa11yResult = await pa11y(url).then((results) => {
+            pa11yResult = await pa11y(url, {timeout:90000}).then((results) => {
                 return results
             })
         if(chrome) {
@@ -28,6 +29,9 @@ class Audit {
         const lightHouseObj = JSON.parse(lightHouseResult.report),
             LHR = lightHouseObj['audits']['diagnostics']['details']['items'][0],
             data = {
+                website: {
+                    url: url
+                },
                 lighthouse: {
                     requests: LHR['numRequests'],
                     over_100_ms: LHR['numTasksOver100ms'],
