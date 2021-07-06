@@ -23,7 +23,7 @@ app.post('/process_report', async function (req, res) {
   res.render('thanks')
   let report = await Audit.auditor(req.body.url) //generate audit. includes Lighthouse and Pa11y
   console.log(report);
-  const browser = await pupper.launch() //begin generating PDF with puppeteer.
+  const browser = await pupper.launch({headless: headless, devtools: true, args: ['--disable-web-security', '--disable-features=IsolateOrigins', ' --disable-site-isolation-trials']}) //begin generating PDF with puppeteer.
   const webPage = await browser.newPage()
   const pugPage = pug.compileFile('./views/pdf/layout.pug')
   const the_page = pugPage(report)
