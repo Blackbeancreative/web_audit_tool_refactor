@@ -5,7 +5,7 @@ const lighthouse = require('lighthouse'),
 class Audit {
     static async auditor(url) {
         const chrome = await chromium.puppeteer.launch({
-                args: ['--headless'],
+                args: ['--headless', '--disable-web-security', '--disable-features=IsolateOrigins', ' --disable-site-isolation-trials'],
                 defaultViewport: chromium.defaultViewport,
                 executablePath: await chromium.executablePath,
                 headless: chromium.headless,
