@@ -37,9 +37,15 @@ class Audit {
             await chrome.close();
         } 
             
-        const 
-            lightHouseObj = JSON.parse(lightHouseResult.report),
-            LHR = lightHouseObj['audits']['diagnostics']['details']['items'][0];
+        const defaultReport = {
+            'numRequests': 0,
+            'numTasksOver100ms': 0,
+            'numScripts': 0,
+            'totalByteWeight': 0,
+            'totalTaskTime': 0
+        };
+        const lightHouseObj = JSON.parse(lightHouseResult.report);
+        const LHR = lightHouseObj['audits']['diagnostics']['details']['items'] ? lightHouseObj['audits']['diagnostics']['details']['items'][0] : defaultReport;
             
         return {
             website: {
