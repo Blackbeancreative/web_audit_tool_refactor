@@ -19,11 +19,11 @@ class Audit {
             onlyCategories: ['performance', 'accessibility', 'seo'],
             skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
             port: (new URL(chrome.wsEndpoint())).port,
-            maxWaitForLoad: 120000,
-            maxWaitForFCP: 120000
+            maxWaitForLoad: 600000,
+            maxWaitForFCP: 600000
         },
         lightHouseResult = await lighthouse(url, options),
-        pa11yResult = await pa11y(url, {timeout:120000}).then((results) => results);
+        pa11yResult = await pa11y(url, {timeout:600000}).then((results) => results);
 
         if(chrome && lightHouseResult) {
             console.log('[AUDIT] Closing report');

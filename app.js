@@ -25,12 +25,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')))
 app.get('/', (req, res) => res.status(200).render('index'));
-
+app.get('/thanks', (req, res) => res.status(200).render('thanks'));
 
 app.post('/process_report', async (req, res) => {
   // Render Thanks
-  res.render('thanks');
-
   const generateId = Math.random().toString(16).substr(2,5);
 
   console.log(`[Report] Starting report processing. (url: ${req.body.url}`);

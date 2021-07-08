@@ -11,6 +11,7 @@ head
   script(src='javascripts/base.js')
   link(rel='stylesheet' href='https://use.typekit.net/nbs8wru.css')
   script(src='https://kit.fontawesome.com/ea6d83c55d.js' crossorigin='anonymous')
+  script(src='javascripts/form.js')
 header
   section
     .container
@@ -51,7 +52,7 @@ section#contact
     p
       | It&apos;s totally free! If you have any questions about your results or need any support, feel free to 
       a(href='mailto:hello@blackbeanmarketing.com') contact us.
-    form(action="/process_report", method="POST")
+    form(method="POST")
       input(placeholder='First Name' type='text' name='firstname')
       input(placeholder='Last Name' type='text' name='lastname')
       input(placeholder='Email Address' type='email' name='email')
