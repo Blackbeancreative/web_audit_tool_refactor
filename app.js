@@ -57,6 +57,7 @@ app.post('/process_report', async (req, res) => {
     console.log(`[Report] Puppeteer browser launched, generating pdf from Audit with Id: ${generateId}`);
     console.log(`[Report] File location should be: ${path.join(__dirname, `${generateId}_report.html`)}`);
     const newTab = await browser.newPage();
+    newTab.setDefaultNavigationTimeout(0); 
     if (newTab) {
       console.log('[Report] Using tab, printing PDF for report HTML');
       await newTab.goto(`file:${path.join(__dirname, `${generateId}_report.html`)}`, {waitUntil: 'networkidle0'});

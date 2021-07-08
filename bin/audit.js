@@ -10,7 +10,8 @@ class Audit {
             executablePath: await chromium.executablePath,
             headless: chromium.headless,
             ignoreHTTPSErrors: true,
-		    args: ['--no-sandbox']
+		    args: ['--no-sandbox'],
+            timeout: 0
         }),
         options = {
             logLevel: 'info',
