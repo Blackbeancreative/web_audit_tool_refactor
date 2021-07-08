@@ -4,9 +4,10 @@ path = require('path'),
 pug = require('pug'),
 app = express(),
 Mail = require('./bin/email.js'),
-fs = require('fs'),
+fs = require('fs').promises,
 pdflib = require('pdf-lib'),
-pupper = require('puppeteer')
+pupper = require('puppeteer'),
+chromium = require('chrome-aws-lambda')
 
 
 app.set('views', path.join(__dirname, 'views'))
@@ -23,20 +24,35 @@ app.post('/process_report', async function (req, res) {
   res.render('thanks')
   let report = await Audit.auditor(req.body.url) //generate audit. includes Lighthouse and Pa11y
   console.log(report);
-  const browser = await pupper.launch() //begin generating PDF with puppeteer.
+  const browser = await chromium.puppeteer.launch({
+                args: ['--headless'],
+                dumpio: true,
+		defaultViewport: chromium.defaultViewport,
+		executablePath: await chromium.executablePath,
+                headless: true,
+                ignoreHTTPSErrors: true,
+                args: ['--no-sandbox', '--use-gl=swiftshader', '--disable-gpu', '--disable-extensions'],
+                devtools: true
+            }
+
+) //begin generating PDF with puppeteer.
   const webPage = await browser.newPage()
   const pugPage = pug.compileFile('./views/pdf/layout.pug')
   const the_page = pugPage(report)
   const id = Math.random().toString(16).substr(2,5) //generate random identifier for temp HTML file
-  fs.writeFile(`./${id}_report.html`, the_page, (callback) => {console.log(callback)})
+  const writeReportFile = await fs.writeFile(`./${id}_report.html`, the_page)
+  if (writeReportFile) {
   console.log('calling synchronous create file');
-  await webPage.goto(`file:${path.join(__dirname, `${id}_report.html`)}`, {waitUntil: 'networkidle0'}) //open local file in browser
+  await webPage.goto(`file:${path.join(__dirname, `${id}_report.html`)}`, {waitUntil: 'networkidle0'})
+  }
+ //open local file in browser
   const thePDF = await webPage.pdf({
       preferCSSPageSize: true,
       printBackground: true
     })
-    const front = fs.readFileSync('./front.pdf') //load front and rear covers
-    const back = fs.readFileSync('./back.pdf')
+    const front = await fs.readFile('./front.pdf') //load front and rear covers
+    const back = await fs.readFile('./back.pdf')
+    if (front && back && thePDF) {
     const mergePDF = [front, thePDF, back]
     const finalPDF = await pdflib.PDFDocument.create()
     for (const bytes of mergePDF) {
@@ -49,8 +65,7 @@ app.post('/process_report', async function (req, res) {
     const buf = await finalPDF.save()
     const the_bytes = Buffer.from(buf)
 
-    console.log('sending email');
-  
+    console.log('sending email')
     Mail.sendMail(req.body.email, req.body.firstname, req.body.url, the_bytes.toString('base64'))
        try {
     //uncomment this to stop retaining HTML files on POST action. This is for debugging/inspecting template errors.
@@ -60,5 +75,6 @@ app.post('/process_report', async function (req, res) {
     console.log(error)
   }
     await browser.close()
+}
 })
 module.exports = app
