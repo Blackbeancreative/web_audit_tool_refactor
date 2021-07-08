@@ -83,6 +83,7 @@ app.post('/process_report', async (req, res) => {
               const useBytes = Buffer.from(saveBuffer);
               console.log(`[Report] COMPLETED! Sending email to ${req.body.url}!`)
               Mail.sendMail(req.body.email, req.body.firstname, req.body.url, useBytes.toString('base64'))
+              return res.status(200).send({ message: "Your report has successfully been sent!" });
             } else 
               console.log('[Report] Do not have buffer return from final PDF!');
           } else 
@@ -97,7 +98,7 @@ app.post('/process_report', async (req, res) => {
   } else
     console.log('[Report] Failed to open Puppeteer browser!');
 
-  return true;
+  return res.status(200).send({ error: "Your report has failed to be sent!" });
 })
 
 module.exports = app
