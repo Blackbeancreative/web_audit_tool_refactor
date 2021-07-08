@@ -5,46 +5,54 @@ const lighthouse = require('lighthouse'),
 class Audit {
     static async auditor(url) {
         const chrome = await chromium.puppeteer.launch({
-                args: ['--headless', '--disable-web-security', '--disable-features=IsolateOrigins', ' --disable-site-isolation-trials'],
-                defaultViewport: chromium.defaultViewport,
-                executablePath: await chromium.executablePath,
-                headless: chromium.headless,
-                ignoreHTTPSErrors: true,
-		args: ['--no-sandbox']
-            }),
-            options = {
-                logLevel: 'info',
-                output: 'json',
-                onlyCategories: ['performance', 'accessibility', 'seo'],
-                skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
-                port: (new URL(chrome.wsEndpoint())).port 
-            },
-            lightHouseResult = await lighthouse(url, options),
-            pa11yResult = await pa11y(url, {timeout:90000}).then((results) => {
-                return results
-            })
-        if(chrome) {
-            await chrome.close()
-        }
-        const lightHouseObj = JSON.parse(lightHouseResult.report),
-            LHR = lightHouseObj['audits']['diagnostics']['details']['items'][0],
-            data = {
-                website: {
-                    url: url
-                },
-                lighthouse: {
-                    requests: LHR['numRequests'],
-                    over_100_ms: LHR['numTasksOver100ms'],
-                    scripts: LHR['numScripts'],
-                    docsize: (LHR['totalByteWeight'] / 1000000),
-                    loadtime: (LHR['totalTaskTime'] / 1000)
-                },
-                ada: {
-                    issues: pa11yResult['issues']
-                }            
+            args: ['--headless', '--disable-web-security', '--disable-features=IsolateOrigins', ' --disable-site-isolation-trials'],
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath,
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
+		    args: ['--no-sandbox']
+        }),
+        options = {
+            logLevel: 'info',
+            output: 'json',
+            onlyCategories: ['performance', 'accessibility', 'seo'],
+            skipAudits: ['screenshot-thumbnails', 'final-screenshot'],
+            port: (new URL(chrome.wsEndpoint())).port 
+        },
+        lightHouseResult = await lighthouse(url, options),
+        pa11yResult = await pa11y(url, {timeout:90000}).then((results) => results);
+
+        if(chrome && lightHouseResult) {
+            console.log('[AUDIT] Closing report');
+
+            /*
+             * Workaround to an existing issue with Chromium/Puppeteer on some Machines/OS's
+             * Reference: https://www.gitmemory.com/issue/puppeteer/puppeteer/6563/739149056
+             */
+            const pages = await chrome.pages(); 
+            await Promise.all(pages.map(page =>page.close())); 
+            await chrome.close();
+        } 
             
+        const 
+            lightHouseObj = JSON.parse(lightHouseResult.report),
+            LHR = lightHouseObj['audits']['diagnostics']['details']['items'][0];
+            
+        return {
+            website: {
+                url: url
+            },
+            lighthouse: {
+                requests: LHR['numRequests'],
+                over_100_ms: LHR['numTasksOver100ms'],
+                scripts: LHR['numScripts'],
+                docsize: (LHR['totalByteWeight'] / 1000000),
+                loadtime: (LHR['totalTaskTime'] / 1000)
+            },
+            ada: {
+                issues: pa11yResult['issues']
+            }            
         }
-        return data
     }
     
 }

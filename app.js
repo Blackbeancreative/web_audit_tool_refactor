@@ -6,75 +6,99 @@ app = express(),
 Mail = require('./bin/email.js'),
 fs = require('fs').promises,
 pdflib = require('pdf-lib'),
-pupper = require('puppeteer'),
-chromium = require('chrome-aws-lambda')
+pupper = require('puppeteer');
 
+
+const closeChrome = async (browserInstance) => {
+  /*
+  * Workaround to an existing issue with Chromium/Puppeteer on some Machines/OS's
+  * Reference: https://www.gitmemory.com/issue/puppeteer/puppeteer/6563/739149056
+  */
+  const pages = await browserInstance.pages(); 
+  await Promise.all(pages.map(page =>page.close())); 
+  await browserInstance.close();
+}
 
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'pug')
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')))
+app.get('/', (req, res) => res.status(200).render('index'));
 
-app.get('/', function(req,res){
-  res.render('index')
-})
-app.post('/process_report', async function (req, res) {
-  console.log('starting processing report');
-  res.render('thanks')
-  let report = await Audit.auditor(req.body.url) //generate audit. includes Lighthouse and Pa11y
-  console.log(report);
-  const browser = await chromium.puppeteer.launch({
-                args: ['--headless'],
-                dumpio: true,
-		defaultViewport: chromium.defaultViewport,
-		executablePath: await chromium.executablePath,
-                headless: true,
-                ignoreHTTPSErrors: true,
-                args: ['--no-sandbox', '--use-gl=swiftshader', '--disable-gpu', '--disable-extensions'],
-                devtools: true
+
+app.post('/process_report', async (req, res) => {
+  // Render Thanks
+  res.render('thanks');
+
+  const generateId = Math.random().toString(16).substr(2,5);
+
+  console.log(`[Report] Starting report processing. (url: ${req.body.url}`);
+  // Starting Pre-requisites
+
+  console.log('[Report] Generating Auditor');
+  const auditReport = await Audit.auditor(req.body.url);
+  if (auditReport) {
+    console.log('[Report] Audit report came back');
+
+    // Compile PUG File to PDF
+    console.log(`[Report] Creating Audit Report by Compiling Templates to Id: ${generateId}`);
+    const layoutPUG = pug.compileFile('./views/pdf/layout.pug');
+    const useReportFile = layoutPUG(auditReport);
+    const writeAuditFile = await fs.writeFile(`./${generateId}_report.html`, useReportFile);
+    if (writeAuditFile)
+      console.log(`Audit file has been written to ${generateId}_report.html`);
+  }
+
+  // Puppeteer Print with PDF
+  console.log('[Report] Starting Puppeteer');
+  const browser = await pupper.launch({ headless: true });
+  if (browser) {
+    console.log(`[Report] Puppeteer browser launched, generating pdf from Audit with Id: ${generateId}`);
+    console.log(`[Report] File location should be: ${path.join(__dirname, `${generateId}_report.html`)}`);
+    const newTab = await browser.newPage();
+    if (newTab) {
+      console.log('[Report] Using tab, printing PDF for report HTML');
+      await newTab.goto(`file:${path.join(__dirname, `${generateId}_report.html`)}`, {waitUntil: 'networkidle0'});
+      const printPDF = await newTab.pdf({ preferCSSPageSize: true, printBackground: true });
+      if (printPDF) {
+        await closeChrome(browser).then(() => console.log('[Report] Browser closed!'));
+
+        console.log('[Report] PDF created, closing browser and merging files now');
+
+        const pdfFront = await fs.readFile('./front.pdf');
+        const pdfBack = await fs.readFile('./back.pdf');
+        
+        if (pdfFront && pdfBack && printPDF) {
+          const pdfBytes = [pdfFront, printPDF, pdfBack];
+          const pdfCreate = await pdflib.PDFDocument.create();
+          if (pdfCreate) {
+            for (const bytes of pdfBytes) {
+              const another_temp_pdf_variable = await pdflib.PDFDocument.load(bytes)
+              const copiedPages = await pdfCreate.copyPages(another_temp_pdf_variable, another_temp_pdf_variable.getPageIndices())
+              copiedPages.forEach((page) => pdfCreate.addPage(page));
             }
 
-) //begin generating PDF with puppeteer.
-  const webPage = await browser.newPage()
-  const pugPage = pug.compileFile('./views/pdf/layout.pug')
-  const the_page = pugPage(report)
-  const id = Math.random().toString(16).substr(2,5) //generate random identifier for temp HTML file
-  const writeReportFile = await fs.writeFile(`./${id}_report.html`, the_page)
-  if (writeReportFile) {
-  console.log('calling synchronous create file');
-  await webPage.goto(`file:${path.join(__dirname, `${id}_report.html`)}`, {waitUntil: 'networkidle0'})
-  }
- //open local file in browser
-  const thePDF = await webPage.pdf({
-      preferCSSPageSize: true,
-      printBackground: true
-    })
-    const front = await fs.readFile('./front.pdf') //load front and rear covers
-    const back = await fs.readFile('./back.pdf')
-    if (front && back && thePDF) {
-    const mergePDF = [front, thePDF, back]
-    const finalPDF = await pdflib.PDFDocument.create()
-    for (const bytes of mergePDF) {
-      const another_temp_pdf_variable = await pdflib.PDFDocument.load(bytes)
-      const copiedPages = await finalPDF.copyPages(another_temp_pdf_variable, another_temp_pdf_variable.getPageIndices())
-      copiedPages.forEach((page) => {
-        finalPDF.addPage(page)
-      })
-    }
-    const buf = await finalPDF.save()
-    const the_bytes = Buffer.from(buf)
+            const saveBuffer = await pdfCreate.save();
+            if (saveBuffer) {
+              const useBytes = Buffer.from(saveBuffer);
+              console.log(`[Report] COMPLETED! Sending email to ${req.body.url}!`)
+              Mail.sendMail(req.body.email, req.body.firstname, req.body.url, useBytes.toString('base64'))
+            } else 
+              console.log('[Report] Do not have buffer return from final PDF!');
+          } else 
+            console.log('[Report] Unable to call PDFDocument Creator!');
+        } else 
+          console.log('[Report] Missing PDF Front, Back or Report!');
+      } else 
+        await closeChrome(browser).then(() => console.log('[Report] Browser closed due to error!'));
+    } else 
+      console.log('[Report] New tab could not be created for page');
 
-    console.log('sending email')
-    Mail.sendMail(req.body.email, req.body.firstname, req.body.url, the_bytes.toString('base64'))
-       try {
-    //uncomment this to stop retaining HTML files on POST action. This is for debugging/inspecting template errors.
-    //fs.unlinkSync(`${id}_report.html`)
-    console.log('success deleting file.')
-  } catch (error) {
-    console.log(error)
-  }
-    await browser.close()
-}
+  } else
+    console.log('[Report] Failed to open Puppeteer browser!');
+
+  return true;
 })
+
 module.exports = app
