@@ -5,7 +5,9 @@ const ReportSchema = new Mongoose.Schema({
     firstName: { type: "String", required: true },
     lastName: { type: "String", required: true },
     url: { type: "String", required: true },
-    status: { type: "Number", required: true, default: 0 }
+    status: { type: "Number", required: true, default: 0 },
+    statusMessage: { type: "String", required: true, default: "Normal" },
+    created: { type: "Number", required: true, default: (new Date().getTime() / 1000) }
 });
 const Report = Mongoose.model('reports', ReportSchema);
 

@@ -1,17 +1,41 @@
 const express = require('express');
-const path = require('path');
 const app = express();
+const path = require('path');
 const http = require('http');
 const server = http.createServer(app);
+const Mongoose = require('mongoose');
+const CronJob = require('cron').CronJob;
 const Config = require('./config.js');
 const ProcessService = require('./services/AuditProcessService.js');
 const Report = require('./models/Report.js');
-const Mongoose = require('mongoose');
 
 // Mongoose
 Mongoose.connect(Config.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false })
     .then(() => console.log('MongoDB connected!'))
     .catch(e => console.log(e));
+
+// Cron
+const processReport = new CronJob('*/1 * * * *', () => {
+    console.log('Executing processReport Cron');
+    const getMostRecent = Report.findOne({ status: 0 }, null, { sort: { created: -1 } }).catch((e) => console.log(e));
+    if (getMostRecent) {
+        console.log(getMostRecent);
+        // Update Status
+        Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 1 }).catch((e) => console.log(e));
+
+        // Process
+        try {
+            const process = ProcessService.use(app.get('views'), getMostRecent.url, getMostRecent.firstName, getMostRecent.lastName, getMostRecent.emailAddress)
+            if (process)
+                Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 2, statusMessage: "Completed" }).catch((e) => console.log(e));
+            else 
+                Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 9, statusMessage: "Failed unexpected on else block" }).catch((e) => console.log(e));
+        } catch {
+            Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 9, statusMessage: "Failed on catch block" }).catch((e) => console.log(e));
+        }
+    }
+});
+processReport.start();
 
 // Express
 app.set('views', path.join(__dirname, 'views'))
