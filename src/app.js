@@ -15,7 +15,7 @@ Mongoose.connect(Config.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: t
     .catch(e => console.log(e));
 
 // Cron
-const processReport = new CronJob('*/1 * * * *', async () => {
+const processReport = new CronJob('*/2 * * * *', async () => {
     console.log('Executing processReport Cron');
     const getMostRecent = await Report.findOne({ status: 0 }, null, { sort: { created: -1 } }).catch((e) => console.log(e));
     if (getMostRecent) {
