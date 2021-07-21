@@ -4,7 +4,7 @@
     "scripts": {
         "start": "node src/app.js",
         "start:linux": "xvfb-run --auto-server npm start",
-        "start:production": "sudo -u www-data npm run start:linux"
+        "start:production": "npm run start:linux"
     },
     "dependencies": {
         "@sendgrid/mail": "^7.4.5",

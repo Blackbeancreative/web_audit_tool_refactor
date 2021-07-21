@@ -3,7 +3,7 @@ module.exports = {
       {
         name: "audit-marketing-tool",
         script: "npm",
-        args: "start:production",
+        args: "run start:linux",
       },
     ],
   };
