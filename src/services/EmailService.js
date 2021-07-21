@@ -10,7 +10,7 @@ class Mail {
             to: address,
             from: 'info@blackbean.marketing',
             subject: `Hey ${name}! Your report for ${clean_url[1]}`,
-            text: "Thanks for downloading our report, you cool cat you!",
+            text: "Thanks for downloading our free audit report! Your report is attached to this email. if you have questions or concerns, please reply to this email and we will get back to you within one business day.",
             attachments: [
                 {
                     content: attachment,
