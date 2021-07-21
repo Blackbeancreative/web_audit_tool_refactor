@@ -3,7 +3,8 @@
     "version": "0.0.1",
     "scripts": {
         "start": "node src/app.js",
-        "start:linux": "xvfb-run --auto-server npm start"
+        "start:linux": "xvfb-run --auto-server npm start",
+        "start:production": "sudo -u www-data npm run start:linux"
     },
     "dependencies": {
         "@sendgrid/mail": "^7.4.5",

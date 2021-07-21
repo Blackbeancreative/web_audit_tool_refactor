@@ -30,7 +30,8 @@ const processReport = new CronJob('*/2 * * * *', async () => {
                 await Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 2, statusMessage: "Completed" }).catch((e) => console.log(e));
             else 
                 await Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 9, statusMessage: "Failed unexpected on else block" }).catch((e) => console.log(e));
-        } catch {
+        } catch (e) {
+            console.log(e);
             await Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 9, statusMessage: "Failed on catch block" }).catch((e) => console.log(e));
         }
     }
