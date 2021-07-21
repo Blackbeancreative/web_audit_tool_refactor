@@ -15,23 +15,23 @@ Mongoose.connect(Config.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: t
     .catch(e => console.log(e));
 
 // Cron
-const processReport = new CronJob('*/1 * * * *', () => {
+const processReport = new CronJob('*/1 * * * *', async () => {
     console.log('Executing processReport Cron');
-    const getMostRecent = Report.findOne({ status: 0 }, null, { sort: { created: -1 } }).catch((e) => console.log(e));
+    const getMostRecent = await Report.findOne({ status: 0 }, null, { sort: { created: -1 } }).catch((e) => console.log(e));
     if (getMostRecent) {
         console.log(getMostRecent);
         // Update Status
-        Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 1 }).catch((e) => console.log(e));
+        await Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 1 }).catch((e) => console.log(e));
 
         // Process
         try {
-            const process = ProcessService.use(app.get('views'), getMostRecent.url, getMostRecent.firstName, getMostRecent.lastName, getMostRecent.emailAddress)
+            const process = await ProcessService.use(app.get('views'), getMostRecent.url, getMostRecent.firstName, getMostRecent.lastName, getMostRecent.emailAddress)
             if (process)
-                Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 2, statusMessage: "Completed" }).catch((e) => console.log(e));
+                await Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 2, statusMessage: "Completed" }).catch((e) => console.log(e));
             else 
-                Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 9, statusMessage: "Failed unexpected on else block" }).catch((e) => console.log(e));
+                await Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 9, statusMessage: "Failed unexpected on else block" }).catch((e) => console.log(e));
         } catch {
-            Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 9, statusMessage: "Failed on catch block" }).catch((e) => console.log(e));
+            await Report.findOneAndUpdate({ _id: getMostRecent._id }, { status: 9, statusMessage: "Failed on catch block" }).catch((e) => console.log(e));
         }
     }
 });
