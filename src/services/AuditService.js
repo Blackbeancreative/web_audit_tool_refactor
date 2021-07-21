@@ -1,6 +1,6 @@
-const lighthouse = require('lighthouse'),
-    chromium = require('chrome-aws-lambda'),
-    pa11y = require('pa11y')
+const lighthouse = require('lighthouse');
+const chromium = require('chrome-aws-lambda');
+const pa11y = require('pa11y');
 
 class Audit {
     static async auditor(url) {
@@ -45,7 +45,8 @@ class Audit {
             'totalTaskTime': 0
         };
         const lightHouseObj = JSON.parse(lightHouseResult.report);
-        const LHR = lightHouseObj['audits']['diagnostics']['details']['items'] ? lightHouseObj['audits']['diagnostics']['details']['items'][0] : defaultReport;
+        const ifLighthouseItems = (lightHouseObj && lightHouseObj['audits'] && lightHouseObj['audits']['diagnostics'] && lightHouseObj['audits']['diagnostics']['details'] && lightHouseObj['audits']['diagnostics']['details']['items']) ? true : false;
+        const LHR = ifLighthouseItems ? lightHouseObj['audits']['diagnostics']['details']['items'][0] : defaultReport;
             
         return {
             website: {

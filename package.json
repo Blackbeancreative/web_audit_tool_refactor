@@ -2,14 +2,16 @@
     "name": "web_auditor",
     "version": "0.0.1",
     "scripts": {
-        "start": "node ./bin/www"
+        "start": "node src/app.js"
     },
     "dependencies": {
         "@sendgrid/mail": "^7.4.5",
         "chrome-aws-lambda": "9.1.0",
+        "cron": "^1.8.2",
         "express": "^4.17.1",
         "jade": "^1.11.0",
         "lighthouse": "^7.4.0",
+        "mongoose": "^5.13.3",
         "npm": "^7.13.0",
         "pa11y": "6.0.0",
         "pdf-lib": "^1.16.0",
